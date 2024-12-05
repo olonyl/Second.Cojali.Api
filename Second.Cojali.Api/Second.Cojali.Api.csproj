@@ -9,12 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Second.Cojali.Api.IoC\Second.Cojali.Api.IoC.csproj" />
     <ProjectReference Include="..\Second.Cojali.Application\Second.Cojali.Application.csproj" />
+    <ProjectReference Include="..\Second.Cojali.Infrastructure\Second.Cojali.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

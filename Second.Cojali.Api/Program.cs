@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Second.Cojali.Api.Contracts.Configuration;
 using Second.Cojali.Api.IoC;
 using Second.Cojali.Infrastructure.Data;
+using Second.Cojali.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+// Apply database migrations if needed
+await app.MigrateDatabaseAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
