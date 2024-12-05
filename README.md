@@ -48,35 +48,118 @@ This project was developed as part of a backend exercise for a job application. 
 ### Prerequisites
 1. **.NET SDK**: Download the latest .NET SDK from [Microsoft](https://dotnet.microsoft.com/).
 2. **Visual Studio**: Use Visual Studio or another IDE that supports .NET Core.
-3. **JSON Data File**: Ensure the JSON file for user data is available in the correct location (typically in the API project folder).
+3. **Docker**: Ensure Docker is installed for containerized MySQL.
 
-### Steps to Run
-1. Clone the repository:
-   ```bash
-   git clone git@github.com:olonyl/Second.Cojali.Api.git
-   ```
-2. Open the solution in Visual Studio:
-   ```bash
-   cd Second.Cojali.Api
-   start Second.Cojali.Api.sln
-   ```
-3. Restore NuGet dependencies:
-   ```bash
-   dotnet restore
-   ```
-4. Update the `appsettings.json` file with any required configurations.
-5. Run the project:
-   ```bash
-   dotnet run --project Second.Cojali.Api
-   ```
+---
+
+### Configuring `appsettings.json`
+
+The API uses the following keys in `appsettings.json` or `appsettings.Development.json` to configure its behavior:
+
+#### **`AppSettings` Section**
+```json
+"AppSettings": {
+  "UseDatabase": true,
+  "UserJsonFilePath": "..\\..\\..\\..\\Second.Cojali.Infrastructure\\Data\\users.json",
+  "ConnectionString": "Server=localhost;Database=SecondCojaliDb;User=root;Password=yourpassword;"
+}
+```
+
+1. **`UseDatabase`**:
+   - Determines whether the application should use a MySQL database (`true`) or read/write user data from a JSON file (`false`).
+   - Default: `true`. In case the setting is not present the value will be `false`.
+
+2. **`UserJsonFilePath`**:
+   - Specifies the relative path to the JSON file used when `UseDatabase` is `false`.
+   - The relative path is resolved using the application’s base directory:
+     ```csharp
+     var absolutePath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath));
+     ```
+   - Example paths and usage are provided in the earlier section.
+
+3. **`ConnectionString`**:
+   - Defines the connection string for the MySQL database when `UseDatabase` is `true`.
+   - Example:
+     ```json
+     "ConnectionString": "Server=localhost;Database=SecondCojaliDb;User=root;Password=yourpassword;"
+     ```
+   - Update the values for `Server`, `Database`, `User`, and `Password` based on your MySQL setup.
+
+---
+
+### Running with Docker Compose
+
+To use the API with a MySQL database hosted in a Docker container, follow these steps:
+
+#### **1. Docker Compose Setup**
+Ensure you have a `docker-compose.yml` file in your project with the following content:
+
+```yaml
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: yourpassword
+      MYSQL_DATABASE: SecondCojaliDb
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./scripts:/docker-entrypoint-initdb.d
+
+volumes:
+  db_data:
+```
+
+- **MySQL Container**:
+  - `MYSQL_ROOT_PASSWORD`: Set your desired root password.
+  - `MYSQL_DATABASE`: Creates the `SecondCojaliDb` database automatically.
+- **Volumes**:
+  - `db_data`: Ensures the database data persists even after the container is stopped.
+  - `./scripts`: Place initialization scripts here (e.g., `create_tables.sql`).
+
+#### **2. Initialize the MySQL Container**
+Run the following command to start the container:
+
+```bash
+docker-compose up -d
+```
+
+Verify the container is running:
+
+```bash
+docker ps
+```
+
+#### **3. Update the Connection String**
+Update the `ConnectionString` in `appsettings.json` to point to the MySQL container:
+
+```json
+"ConnectionString": "Server=localhost;Database=SecondCojaliDb;User=root;Password=yourpassword;"
+```
+
+#### **4. Run the API**
+Start the API project using the following command:
+
+```bash
+dotnet run --project Second.Cojali.Api
+```
+
+#### **5. Verify the Setup**
+- Ensure the API connects to the MySQL container by testing the endpoints.
+- Check the MySQL container logs to confirm connections.
 
 ---
 
 ## Usage
 
 ### Endpoints
-- **GET /users**: Retrieves a list of users from the JSON file.
-- **POST /users**: Adds a new user to the JSON file and simulates sending an email.
+- **GET /users**: Retrieves a list of users from the JSON file or MySQL database.
+- **POST /users**: Adds a new user to the JSON file or MySQL database and simulates sending an email.
 - **PUT /users/{id}**: Updates the information of an existing user.
 
 ### API Testing
