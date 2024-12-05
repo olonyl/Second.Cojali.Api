@@ -8,15 +8,24 @@ namespace Second.Cojali.Infrastructure.Services
 {
     public static class FileService
     {
-        public static string ReadFile(string filePath)
+        public static async Task<string> ReadFileAsync(string filePath)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"File not found at {filePath}");
 
-            return File.ReadAllText(filePath);
+            using (var reader = new StreamReader(filePath, Encoding.UTF8))
+            {
+                return await reader.ReadToEndAsync();
+            }
         }
 
-        public static void WriteFile(string filePath, string content) => File.WriteAllText(filePath, content);
+        public static async Task WriteFileAsync(string filePath, string content)
+        {
+            using (var writer = new StreamWriter(filePath, false, Encoding.UTF8))
+            {
+                await writer.WriteAsync(content);
+            }
+        }
 
     }
 }

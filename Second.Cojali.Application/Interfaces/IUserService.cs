@@ -5,9 +5,9 @@ namespace Second.Cojali.Application.Interfaces;
 
 public interface IUserService
 {
-    IEnumerable<UserDto> GetAllUsers();
-    UserDto GetById(int id);
-    UserDto CreateUser(string name, string email);
-    void UpdateUser(int id, string name, string email);
-    bool UserExists(int id);
+    Task<IEnumerable<UserDto>> GetAllUsersAsync();
+    Task<UserDto> GetByIdAsync(int id);
+    Task<UserDto> CreateUserAsync(string name, string email);
+    Task UpdateUserAsync(int id, string name, string email);
+    Task<bool> UserExistsAsync(int id);
 }

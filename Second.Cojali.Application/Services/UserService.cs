@@ -19,46 +19,47 @@ public class UserService : IUserService
         _emailService = emailService;
     }
 
-    public IEnumerable<UserDto> GetAllUsers()
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
-        var users = _userRepository.GetAllUsers();
+        var users = await _userRepository.GetAllUsersAsync();
         return _mapper.Map<IEnumerable<UserDto>>(users);
     }
 
-    public UserDto GetById(int id)
+    public async Task<UserDto> GetByIdAsync(int id)
     {
-        var user = FindUserOrThrow(id);
+        var user = await FindUserOrThrowAsync(id);
         return _mapper.Map<UserDto>(user);
     }
 
-    public UserDto CreateUser(string name, string email)
+    public async Task<UserDto> CreateUserAsync(string name, string email)
     {
         ValidateUserInput(name, email);
 
         var newUser = new User { Name = name, Email = email };
-        _userRepository.AddUser(newUser);
+        await _userRepository.AddUserAsync(newUser);
 
-        _emailService.SendEmail(email, "Welcome!", $"Hello {name}, your account has been created.");
+        await _emailService.SendEmailAsync(email, "Welcome!", $"Hello {name}, your account has been created.");
 
         return _mapper.Map<UserDto>(newUser);
     }
 
-    public void UpdateUser(int id, string name, string email)
+    public async Task UpdateUserAsync(int id, string name, string email)
     {
         ValidateUserInput(name, email);
 
-        var user = FindUserOrThrow(id);
+        var user = await FindUserOrThrowAsync(id);
 
         user.Name = name;
         user.Email = email;
-        _userRepository.UpdateUser(user);
+        await _userRepository.UpdateUserAsync(user);
     }
 
-    public bool UserExists(int id) => _userRepository.Exists(id);
+    public async Task<bool> UserExistsAsync(int id) => await _userRepository.ExistsAsync(id);
 
-    private User FindUserOrThrow(int id)
+    private async Task<User> FindUserOrThrowAsync(int id)
     {
-        return _userRepository.GetById(id) ?? throw new KeyNotFoundException($"User with ID {id} not found.");
+        return await _userRepository.GetByIdAsync(id)
+               ?? throw new KeyNotFoundException($"User with ID {id} not found.");
     }
 
     private static void ValidateUserInput(string name, string email)

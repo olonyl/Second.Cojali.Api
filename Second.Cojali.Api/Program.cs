@@ -1,12 +1,14 @@
+using Microsoft.EntityFrameworkCore;
 using Second.Cojali.Api.Contracts.Configuration;
 using Second.Cojali.Api.IoC;
+using Second.Cojali.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("DataSources"));
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 builder.Services.AddCustomDependencies();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

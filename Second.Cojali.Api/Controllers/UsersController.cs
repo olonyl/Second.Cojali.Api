@@ -35,9 +35,9 @@ public class UsersController : ControllerBase
     /// <response code="500">An error occurred while processing the request.</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), 200)] // OK
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAllAsync()
     {
-        var users = _userService.GetAllUsers();
+        var users = await _userService.GetAllUsersAsync();
         var response = _mapper.Map<IEnumerable<UserResponseDto>>(users);
         return Ok(response);
     }
@@ -56,9 +56,9 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(UserResponseDto), 201)] // Created
     [ProducesResponseType(400)] // Bad Request
-    public IActionResult AddUser([FromBody] AddRequestDto userDto)
+    public async Task<IActionResult> AddUserAsync([FromBody] AddRequestDto userDto)
     {
-        var user = _userService.CreateUser(userDto.Name, userDto.Email);
+        var user = await _userService.CreateUserAsync(userDto.Name, userDto.Email);
         var response = _mapper.Map<UserResponseDto>(user);
         return Created("", response);
     }
@@ -81,15 +81,15 @@ public class UsersController : ControllerBase
     [ProducesResponseType(204)] // No Content
     [ProducesResponseType(400)] // Bad Request
     [ProducesResponseType(404)] // Not Found
-    public IActionResult UpdateUser(int id, [FromBody] UpdateRequestDto userDto)
+    public async Task<IActionResult> UpdateUserAsync(int id, [FromBody] UpdateRequestDto userDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        if (!_userService.UserExists(id))
+        if (!await _userService.UserExistsAsync(id))
             return NotFound();
 
-        _userService.UpdateUser(id, userDto.Name, userDto.Email);
+        await _userService.UpdateUserAsync(id, userDto.Name, userDto.Email);
         return NoContent();
     }
 }

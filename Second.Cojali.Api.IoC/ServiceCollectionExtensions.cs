@@ -8,6 +8,7 @@ using Second.Cojali.Infrastructure.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Second.Cojali.Infrastructure.Extensions;
 
 namespace Second.Cojali.Api.IoC;
 
@@ -19,28 +20,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmailService, EmailService>();
 
-        // Register Repositories
-        services.AddScoped<IUserRepository>(provider =>
-        {
-            var configuration = provider.GetRequiredService<IOptions<AppSettings>>().Value;
-            var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            // Relative path to navigate from the executing directory to the Infrastructure directory
-            var absolutePath = PathResolver.ResolveAndValidatePath(
-                currentDirectory,
-                configuration.UserJsonFilePath,
-                "The User JSON file was not found."
-            );
-
-            return new UserRepository(absolutePath);
-        });
+        // Register Repositories using RepositoryFactory
+        services.AddRepositories();
 
         // Register AutoMapper profiles
-        services.AddAutoMapper(cfg =>
-        {
-            cfg.AddProfile<ApiMappingProfile>();
-            cfg.AddProfile<ApplicationMappingProfile>();
-        });
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         return services;
     }
